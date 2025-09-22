@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Row, Col, Form, Card, Badge } from 'react-bootstrap';
 
 const tripData = [
@@ -6,8 +6,8 @@ const tripData = [
     "trip_id": 101,
     "user_id": "anon_001",
     "journey_id": 1,
-    "origin": {"lat": 9.9312, "lon": 76.2673, "name": "Kochi Home"},
-    "destination": {"lat": 10.0184, "lon": 76.3411, "name": "Infopark"},
+    "origin": { "lat": 9.9312, "lon": 76.2673, "name": "Kochi Home" },
+    "destination": { "lat": 10.0184, "lon": 76.3411, "name": "Infopark" },
     "start_time": "2025-09-14T08:05:00",
     "end_time": "2025-09-14T08:55:00",
     "mode": "Bus",
@@ -19,8 +19,8 @@ const tripData = [
     "trip_id": 102,
     "user_id": "anon_001",
     "journey_id": 1,
-    "origin": {"lat": 10.0184, "lon": 76.3411, "name": "Infopark"},
-    "destination": {"lat": 9.9312, "lon": 76.2673, "name": "Kochi Home"},
+    "origin": { "lat": 10.0184, "lon": 76.3411, "name": "Infopark" },
+    "destination": { "lat": 9.9312, "lon": 76.2673, "name": "Kochi Home" },
     "start_time": "2025-09-14T18:10:00",
     "end_time": "2025-09-14T19:05:00",
     "mode": "Bus",
@@ -32,8 +32,8 @@ const tripData = [
     "trip_id": 201,
     "user_id": "anon_002",
     "journey_id": 2,
-    "origin": {"lat": 9.9896, "lon": 76.2999, "name": "Kaloor"},
-    "destination": {"lat": 9.9640, "lon": 76.2825, "name": "Vyttila Hub"},
+    "origin": { "lat": 9.9896, "lon": 76.2999, "name": "Kaloor" },
+    "destination": { "lat": 9.9640, "lon": 76.2825, "name": "Vyttila Hub" },
     "start_time": "2025-09-14T17:30:00",
     "end_time": "2025-09-14T17:55:00",
     "mode": "Auto",
@@ -47,9 +47,19 @@ const TripAnalysis = () => {
   const [dateRange, setDateRange] = useState('last-30-days');
   const [transportMode, setTransportMode] = useState('all');
   const [dataStatus, setDataStatus] = useState('all');
+  const [journeys, setJourneys] = useState([]);
+
+  useEffect(() => {
+    fetch('http://127.0.0.1:8000/get/journey', {
+      headers: { 'accept': 'application/json' }
+    })
+      .then(res => res.json())
+      .then(data => setJourneys(data))
+      .catch(err => console.error('Failed to fetch journeys', err));
+  }, []);
 
   const totalTrips = tripData.length;
- 
+
   const tripsByMode = tripData.reduce((acc, trip) => {
     acc[trip.mode] = (acc[trip.mode] || 0) + 1;
     return acc;
@@ -70,7 +80,7 @@ const TripAnalysis = () => {
   }, {});
 
   const getStatusBadge = (isVerified) => {
-    return isVerified 
+    return isVerified
       ? <Badge bg="success">Verified</Badge>
       : <Badge bg="warning">Unverified</Badge>;
   };
@@ -83,10 +93,10 @@ const TripAnalysis = () => {
       Walking: { bg: "success", text: "white" },
       Bicycle: { bg: "primary", text: "white" }
     };
-    
+
     return (
-      <Badge 
-        bg={modeStyles[mode]?.bg || "secondary"} 
+      <Badge
+        bg={modeStyles[mode]?.bg || "secondary"}
         text={modeStyles[mode]?.text}
       >
         {mode}
@@ -96,7 +106,7 @@ const TripAnalysis = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
   return (
@@ -157,8 +167,8 @@ const TripAnalysis = () => {
                       <div className="d-flex justify-content-around align-items-center">
                         {Object.entries(tripsByMode).map(([mode, count], index) => (
                           <div key={index} className="text-center">
-                            <div className="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" 
-                                style={{ width: '60px', height: '60px' }}>
+                            <div className="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center"
+                              style={{ width: '60px', height: '60px' }}>
                               <strong>{count}</strong>
                             </div>
                             <div className="mt-2">{mode}</div>
@@ -192,8 +202,8 @@ const TripAnalysis = () => {
                       <div className="d-flex justify-content-around align-items-center">
                         {Object.entries(tripsByTime).map(([time, count], index) => (
                           <div key={index} className="text-center">
-                            <div className="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center" 
-                                style={{ width: '60px', height: '60px' }}>
+                            <div className="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center"
+                              style={{ width: '60px', height: '60px' }}>
                               <strong>{count}</strong>
                             </div>
                             <div className="mt-2">{time.split(' ')[0]}</div>
@@ -250,7 +260,7 @@ const TripAnalysis = () => {
         </Col>
       </Row>
 
-     
+
     </div>
   );
 };

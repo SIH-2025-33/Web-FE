@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Row, Col, Form, Card } from 'react-bootstrap';
 import { MapContainer, TileLayer, Polyline, Marker, Popup, Tooltip } from 'react-leaflet';
-import { tripData } from '../data/tripData';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useJourneyData } from '../hooks/useJourneyData';
 
+// Fix for default markers
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
@@ -12,9 +13,28 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
-
+// Sample trip data for fallback
+const sampleTripData = [
+  {
+    "trip_id": 101,
+    "user_id": "anon_001",
+    "journey_id": 1,
+    "origin": {"lat": 9.9312, "lon": 76.2673, "name": "Kochi Home"},
+    "destination": {"lat": 10.0184, "lon": 76.3411, "name": "Infopark"},
+    "start_time": "2025-09-14T08:05:00",
+    "end_time": "2025-09-14T08:55:00",
+    "mode": "Bus",
+    "distance_travelled": 15.2,
+    "co_travellers": 0,
+    "is_verified_by_user": true
+  },
+  // ... add your sample data
+];
 
 const GeographicData = () => {
+  const { journeys, loading, error } = useJourneyData();
+  const tripData = journeys.length > 0 ? journeys : sampleTripData;
+  
   const [selectedRegion, setSelectedRegion] = useState('all-kerala');
   const [timeFilter, setTimeFilter] = useState('all-time');
   const [transportMode, setTransportMode] = useState('all');
@@ -22,37 +42,37 @@ const GeographicData = () => {
   const [mapZoom, setMapZoom] = useState(8);
 
   const calculateRouteFrequencies = () => {
-  const routeCounts = {};
-  
-  tripData.forEach(trip => {
-    if (!trip || !trip.origin || !trip.destination) return; 
+    const routeCounts = {};
     
-    const routeKey = `${trip.origin.name}-${trip.destination.name}`;
-    const reverseRouteKey = `${trip.destination.name}-${trip.origin.name}`;
+    tripData.forEach(trip => {
+      if (!trip || !trip.origin || !trip.destination) return; 
+      
+      const routeKey = `${trip.origin.name}-${trip.destination.name}`;
+      const reverseRouteKey = `${trip.destination.name}-${trip.origin.name}`;
+      
+      if (routeCounts[routeKey]) {
+        routeCounts[routeKey].count += 1;
+      } else if (routeCounts[reverseRouteKey]) {
+        routeCounts[reverseRouteKey].count += 1;
+      } else {
+        routeCounts[routeKey] = {
+          from: trip.origin.name,
+          to: trip.destination.name,
+          count: 1,
+          mode: trip.mode,
+          distance: trip.distance_travelled,
+          origin: trip.origin,
+          destination: trip.destination,
+          coordinates: [
+            [trip.origin.lat, trip.origin.lon],
+            [trip.destination.lat, trip.destination.lon]
+          ]
+        };
+      }
+    });
     
-    if (routeCounts[routeKey]) {
-      routeCounts[routeKey].count += 1;
-    } else if (routeCounts[reverseRouteKey]) {
-      routeCounts[reverseRouteKey].count += 1;
-    } else {
-      routeCounts[routeKey] = {
-        from: trip.origin.name,
-        to: trip.destination.name,
-        count: 1,
-        mode: trip.mode,
-        distance: trip.distance_travelled,
-        origin: trip.origin,
-        destination: trip.destination,
-        coordinates: [
-          [trip.origin.lat, trip.origin.lon],
-          [trip.destination.lat, trip.destination.lon]
-        ]
-      };
-    }
-  });
-  
-  return Object.values(routeCounts);
-};
+    return Object.values(routeCounts);
+  };
 
   const routeFrequencies = calculateRouteFrequencies();
 

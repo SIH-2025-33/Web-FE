@@ -1,18 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Row, Col, Form, Card, Table, Badge, ProgressBar } from 'react-bootstrap';
 
 const getUserData = () => {
   const userTripCounts = {};
   const userTotalDistance = {};
   const userModes = {};
-  
   const tripData = [
     {
       "trip_id": 101,
       "user_id": "anon_001",
       "journey_id": 1,
-      "origin": {"lat": 9.9312, "lon": 76.2673, "name": "Kochi Home"},
-      "destination": {"lat": 10.0184, "lon": 76.3411, "name": "Infopark"},
+      "origin": { "lat": 9.9312, "lon": 76.2673, "name": "Kochi Home" },
+      "destination": { "lat": 10.0184, "lon": 76.3411, "name": "Infopark" },
       "start_time": "2025-09-14T08:05:00",
       "end_time": "2025-09-14T08:55:00",
       "mode": "Bus",
@@ -24,8 +23,8 @@ const getUserData = () => {
       "trip_id": 102,
       "user_id": "anon_001",
       "journey_id": 1,
-      "origin": {"lat": 10.0184, "lon": 76.3411, "name": "Infopark"},
-      "destination": {"lat": 9.9312, "lon": 76.2673, "name": "Kochi Home"},
+      "origin": { "lat": 10.0184, "lon": 76.3411, "name": "Infopark" },
+      "destination": { "lat": 9.9312, "lon": 76.2673, "name": "Kochi Home" },
       "start_time": "2025-09-14T18:10:00",
       "end_time": "2025-09-14T19:05:00",
       "mode": "Bus",
@@ -37,8 +36,8 @@ const getUserData = () => {
       "trip_id": 201,
       "user_id": "anon_002",
       "journey_id": 2,
-      "origin": {"lat": 9.9896, "lon": 76.2999, "name": "Kaloor"},
-      "destination": {"lat": 9.9640, "lon": 76.2825, "name": "Vyttila Hub"},
+      "origin": { "lat": 9.9896, "lon": 76.2999, "name": "Kaloor" },
+      "destination": { "lat": 9.9640, "lon": 76.2825, "name": "Vyttila Hub" },
       "start_time": "2025-09-14T17:30:00",
       "end_time": "2025-09-14T17:55:00",
       "mode": "Auto",
@@ -47,25 +46,21 @@ const getUserData = () => {
       "is_verified_by_user": false
     }
   ];
-
   tripData.forEach(trip => {
     if (!userTripCounts[trip.user_id]) {
       userTripCounts[trip.user_id] = 0;
       userTotalDistance[trip.user_id] = 0;
       userModes[trip.user_id] = new Set();
     }
-    
     userTripCounts[trip.user_id] += 1;
     userTotalDistance[trip.user_id] += trip.distance_travelled;
     userModes[trip.user_id].add(trip.mode);
   });
-
   return Object.keys(userTripCounts).map(userId => {
     const tripCount = userTripCounts[userId];
     const totalDistance = userTotalDistance[userId];
     const avgDistance = totalDistance / tripCount;
     const modes = Array.from(userModes[userId]);
-    
     return {
       id: userId,
       tripCount,
@@ -79,13 +74,23 @@ const getUserData = () => {
   });
 };
 
-const userData = getUserData();
-
 const UserStatistics = () => {
+  const userData = getUserData();
+
   const [dateRange, setDateRange] = useState('last-30-days');
   const [userStatus, setUserStatus] = useState('all');
   const [sortField, setSortField] = useState('tripCount');
   const [sortOrder, setSortOrder] = useState('desc');
+  const [journeys, setJourneys] = useState([]);
+
+  useEffect(() => {
+    fetch('http://127.0.0.1:8000/get/journey', {
+      headers: { 'accept': 'application/json' }
+    })
+      .then(res => res.json())
+      .then(data => setJourneys(data))
+      .catch(err => console.error('Failed to fetch journeys', err));
+  }, []);
 
   const totalUsers = userData.length;
   const totalTrips = userData.reduce((sum, user) => sum + user.tripCount, 0);
@@ -96,12 +101,10 @@ const UserStatistics = () => {
   const sortedUsers = [...userData].sort((a, b) => {
     let aValue = a[sortField];
     let bValue = b[sortField];
-    
     if (sortField === 'modes') {
       aValue = a.modes.length;
       bValue = b.modes.length;
     }
-    
     if (sortOrder === 'asc') {
       return aValue > bValue ? 1 : -1;
     } else {
@@ -114,7 +117,6 @@ const UserStatistics = () => {
       ? <Badge bg="success">Active</Badge>
       : <Badge bg="secondary">Inactive</Badge>;
   };
-
   const getModeBadges = (modes) => {
     return modes.map((mode, index) => {
       const modeStyles = {
@@ -124,7 +126,6 @@ const UserStatistics = () => {
         Walking: { bg: "success", text: "white" },
         Bicycle: { bg: "primary", text: "white" }
       };
-      
       return (
         <Badge 
           key={index}
@@ -137,7 +138,6 @@ const UserStatistics = () => {
       );
     });
   };
-
   const handleSort = (field) => {
     if (sortField === field) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
@@ -146,7 +146,6 @@ const UserStatistics = () => {
       setSortOrder('desc');
     }
   };
-
   const getSortIndicator = (field) => {
     if (sortField !== field) return null;
     return sortOrder === 'asc' ? '↑' : '↓';
@@ -154,6 +153,7 @@ const UserStatistics = () => {
 
   return (
     <div>
+      {/* Filter bar */}
       <div className="filter-bar">
         <Row>
           <Col md={4}>
@@ -184,7 +184,7 @@ const UserStatistics = () => {
           </Col>
         </Row>
       </div>
-
+      {/* Statistic cards */}
       <Row className="mb-4">
         <Col md={3}>
           <Card className="stat-card">
@@ -231,7 +231,7 @@ const UserStatistics = () => {
           </Card>
         </Col>
       </Row>
-
+      {/* Activity distribution */}
       <Row className="mb-4">
         <Col md={6}>
           <Card>
@@ -264,7 +264,7 @@ const UserStatistics = () => {
             </Card.Body>
           </Card>
         </Col>
-
+        {/* Top travelers */}
         <Col md={6}>
           <Card>
             <Card.Header>
@@ -291,7 +291,6 @@ const UserStatistics = () => {
                       </div>
                     </div>
                   ))}
-                  
                   {sortedUsers.length === 0 && (
                     <div className="text-center py-4">
                       <i className="fas fa-user fa-3x text-muted mb-3"></i>
@@ -304,7 +303,7 @@ const UserStatistics = () => {
           </Card>
         </Col>
       </Row>
-
+      {/* Engagement metrics */}
       <Row className="mb-4">
         <Col md={12}>
           <Card>
@@ -346,7 +345,7 @@ const UserStatistics = () => {
           </Card>
         </Col>
       </Row>
-
+      {/* User details table */}
       <Row>
         <Col md={12}>
           <Card>
