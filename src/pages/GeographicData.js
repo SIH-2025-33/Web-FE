@@ -3,9 +3,7 @@ import { Row, Col, Form, Card } from 'react-bootstrap';
 import { MapContainer, TileLayer, Polyline, Marker, Popup, Tooltip } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useJourneyData } from '../hooks/useJourneyData';
-
-// Fix for default markers
+import { useJourneyData } from '../hooks/useJourneyData'; 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),

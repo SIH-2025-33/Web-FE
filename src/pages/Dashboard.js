@@ -4,11 +4,10 @@ import { Row, Col, Form, Alert } from 'react-bootstrap';
 import StatsCards from '../components/StatsCards';
 import TripTable from '../components/TripTable';
 import ModeChart from '../components/charts/ModeChart';
-import DistanceChart from '../components/charts/DistanceChart';
+import DistanceChart from '../components/charts/DistanceChart'; // This file doesn't exist!
 import { useJourneyData } from '../hooks/useJourneyData';
 import LoadingSpinner from '../components/LoadingSpinner';
 
-// Fallback sample data in case API fails
 const sampleTripData = [
   {
     "trip_id": 101,
@@ -23,7 +22,6 @@ const sampleTripData = [
     "co_travellers": 0,
     "is_verified_by_user": true
   },
-  // ... your existing sample data
 ];
 
 const Dashboard = () => {
