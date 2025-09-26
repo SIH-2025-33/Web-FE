@@ -1,0 +1,74 @@
+/* Container */
+.journey-card {
+  border-radius: 12px;
+  overflow: hidden;
+  border: none;
+}
+
+/* Header */
+.journey-card .card-header {
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  color: white;
+  padding: 15px 20px;
+}
+
+.journey-card .card-header h4 {
+  font-weight: 600;
+}
+
+.journey-card .card-header small {
+  color: #e6e6e6;
+}
+
+/* Table */
+.journey-table thead {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.journey-table tbody tr:hover {
+  background-color: #f1f7ff;
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* Table cells */
+.journey-table td,
+.journey-table th {
+  vertical-align: middle !important;
+  padding: 12px;
+  font-size: 14px;
+}
+
+/* Verified Badge */
+.badge-success {
+  background-color: #28a745 !important;
+}
+
+.badge-danger {
+  background-color: #dc3545 !important;
+}
+
+/* Action Button */
+.journey-table .btn-primary {
+  background: #007bff;
+  border: none;
+  padding: 5px 12px;
+  font-size: 13px;
+  border-radius: 6px;
+}
+
+.journey-table .btn-primary:hover {
+  background: #0056b3;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .journey-card .card-header h4 {
+    font-size: 18px;
+  }
+  .journey-table td,
+  .journey-table th {
+    font-size: 12px;
+    padding: 8px;
+  }
+}

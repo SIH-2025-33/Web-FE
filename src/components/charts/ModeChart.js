@@ -7,24 +7,26 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 const ModeChart = ({ tripData }) => {
   const { isDarkMode } = useContext(ThemeContext);
-  
+
+  // Count trips by mode dynamically
   const modeCounts = tripData.reduce((acc, trip) => {
-    acc[trip.mode] = (acc[trip.mode] || 0) + 1;
+    const mode = trip.mode || 'Unknown';
+    acc[mode] = (acc[mode] || 0) + 1;
     return acc;
   }, {});
 
+  const labels = Object.keys(modeCounts);
+
+  // Dynamically generate colors (reuse base colors or random if more modes)
+  const baseColors = ['#0d6efd', '#ffc107', '#dc3545', '#198754', '#6f42c1', '#fd7e14', '#20c997', '#6610f2'];
+  const backgroundColor = labels.map((_, idx) => baseColors[idx % baseColors.length]);
+
   const data = {
-    labels: Object.keys(modeCounts),
+    labels,
     datasets: [
       {
         data: Object.values(modeCounts),
-        backgroundColor: [
-          '#0d6efd', // Bus - blue
-          '#ffc107', // Auto - yellow
-          '#dc3545', // Car - red
-          '#198754', // Walking - green
-          '#6f42c1'  // Bicycle - purple
-        ],
+        backgroundColor,
         borderWidth: 1,
         borderColor: isDarkMode ? '#495057' : '#fff'
       },

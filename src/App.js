@@ -1,59 +1,38 @@
-import React, { useState, createContext, useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
-import Navbar from './components/Navbar';
-import Dashboard from './pages/Dashboard';
-import TripAnalysis from './pages/TripAnalysis';
-import UserStatistics from './pages/UserStatistics';
-import GeographicData from './pages/GeographicData';
-import CustomerComplaints from './pages/CustomerComplaints';
-import Settings from './pages/Settings';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { createContext, useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Dashboard from "./pages/Dashboard";
+import GeographicData from "./pages/GeographicData";
+import Sidebar from "./components/Sidebar";
 import './App.css';
+import JourneyTablePage from "./pages/JourneyTablePage";
+import CustomerComplaints from "./pages/CustomerComplaints";
+import SettingsPage from "./pages/Settings";
 
 export const ThemeContext = createContext();
 
 function App() {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [accentColor, setAccentColor] = useState('#0d6efd');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-    document.body.classList.toggle('dark-mode');
-  };
-
-  const changeAccentColor = (color) => {
-    setAccentColor(color);
-    document.documentElement.style.setProperty('--primary', color);
-  };
+  const toggleTheme = () => setIsDarkMode(prev => !prev);
+  const toggleSidebar = () => setSidebarCollapsed(prev => !prev);
 
   return (
-    <ThemeContext.Provider value={{
-      isDarkMode,
-      toggleTheme,
-      accentColor,
-      changeAccentColor
-    }}>
-      <Router>
-        <div className={`app ${isDarkMode ? 'dark-mode' : ''}`}>
-          <Sidebar
-            collapsed={sidebarCollapsed}
-            toggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
-          />
-          <div className={`main-content ${sidebarCollapsed ? 'collapsed' : ''}`}>
-            <Navbar />
-            <div className="content-wrapper">
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/geographic" element={<GeographicData />} />
-                <Route path="/complaints" element={<CustomerComplaints />} />
-                <Route path="/settings" element={<Settings />} />
-              </Routes>
-            </div>
+    <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
+      <div className={`app-wrapper ${isDarkMode ? "dark-mode" : ""}`}>
+        <Router>
+          <Sidebar collapsed={sidebarCollapsed} toggleSidebar={toggleSidebar} />
+          <div className={`main-content ${sidebarCollapsed ? "collapsed" : ""}`}>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/geographic" element={<GeographicData />} />
+              <Route path="/journeys" element={<JourneyTablePage />} />
+              <Route path="/complaints" element={<CustomerComplaints />} />
+              <Route path="/settings" element={<SettingsPage />} />
+            </Routes>
           </div>
-        </div>
-      </Router>
+        </Router>
+      </div>
     </ThemeContext.Provider>
   );
 }

@@ -1,12 +1,14 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import '../App.css';
 
 const Sidebar = ({ collapsed, toggleSidebar }) => {
   const location = useLocation();
-  
+
   const menuItems = [
     { path: '/', icon: 'fas fa-tachometer-alt', label: 'Dashboard' },
     { path: '/geographic', icon: 'fas fa-map-marker-alt', label: 'Geographic Data' },
+    { path: '/journeys', icon: 'fas fa-route', label: 'Journeys' },  // ✅ New
     { path: '/complaints', icon: 'fas fa-exclamation-circle', label: 'Customer Issues' }, 
     { path: '/settings', icon: 'fas fa-cog', label: 'Settings' },
   ];
@@ -28,7 +30,7 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
           <i className={`fas ${collapsed ? 'fa-chevron-right' : 'fa-chevron-left'}`}></i>
         </button>
       </div>
-      
+
       <ul className="nav flex-column">
         {menuItems.map(item => (
           <li className="nav-item" key={item.path}>
@@ -41,12 +43,12 @@ const Sidebar = ({ collapsed, toggleSidebar }) => {
             </Link>
           </li>
         ))}
-        <li className="nav-item mt-4">
+        {/* <li className="nav-item mt-4">
           <a className="nav-link" href="#logout">
             <i className="fas fa-sign-out-alt"></i>
             {!collapsed && <span>Logout</span>}
           </a>
-        </li>
+        </li> */}
       </ul>
     </div>
   );

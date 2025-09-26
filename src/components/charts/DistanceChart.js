@@ -1,48 +1,38 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Bar } from 'react-chartjs-2';
-import { 
-  Chart as ChartJS, 
-  CategoryScale, 
-  LinearScale, 
-  BarElement, 
-  Title, 
-  Tooltip, 
-  Legend 
-} from 'chart.js';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from 'chart.js';
+import { ThemeContext } from '../../App';
 
-ChartJS.register(
-  CategoryScale, 
-  LinearScale, 
-  BarElement, 
-  Title, 
-  Tooltip, 
-  Legend
-);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
-const DistanceChart = ({ tripData }) => {
-  const distanceByMode = tripData.reduce((acc, trip) => {
-    if (!acc[trip.mode]) {
-      acc[trip.mode] = { total: 0, count: 0 };
-    }
-    acc[trip.mode].total += trip.distance_travelled;
-    acc[trip.mode].count += 1;
+const DistanceChart = ({ tripData = [] }) => {
+  const { isDarkMode } = useContext(ThemeContext);
+
+  if (!tripData || tripData.length === 0) {
+    return <div>Loading chart...</div>;
+  }
+
+  // Aggregate distances by transport mode
+  const modeStats = tripData.reduce((acc, trip) => {
+    const mode = trip.mode || 'Unknown';
+    const distance = parseFloat(trip.distance_travelled || 0);
+
+    if (!acc[mode]) acc[mode] = { totalDistance: 0, count: 0 };
+    acc[mode].totalDistance += distance;
+    acc[mode].count += 1;
     return acc;
   }, {});
 
-  const modes = Object.keys(distanceByMode);
-  const avgDistances = modes.map(mode => 
-    distanceByMode[mode].total / distanceByMode[mode].count
-  );
+  const labels = Object.keys(modeStats);
+  const averages = labels.map(mode => (modeStats[mode].totalDistance / modeStats[mode].count).toFixed(2));
 
   const data = {
-    labels: modes,
+    labels,
     datasets: [
       {
         label: 'Average Distance (km)',
-        data: avgDistances,
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
-        borderColor: 'rgb(53, 162, 235)',
-        borderWidth: 1,
+        data: averages,
+        backgroundColor: ['#0d6efd', '#ffc107', '#dc3545', '#198754', '#6f42c1'],
       },
     ],
   };
@@ -50,27 +40,18 @@ const DistanceChart = ({ tripData }) => {
   const options = {
     responsive: true,
     maintainAspectRatio: false,
-    scales: {
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: 'Distance (km)'
-        }
-      },
-      x: {
-        title: {
-          display: true,
-          text: 'Transport Mode'
-        }
-      }
-    },
     plugins: {
+      legend: { display: false },
       title: {
         display: true,
-        text: 'Average Distance by Transport Mode'
-      }
-    }
+        text: 'Average Distance by Transport Mode',
+        color: isDarkMode ? '#e9ecef' : '#212529',
+      },
+    },
+    scales: {
+      y: { beginAtZero: true, ticks: { color: isDarkMode ? '#e9ecef' : '#212529' } },
+      x: { ticks: { color: isDarkMode ? '#e9ecef' : '#212529' } },
+    },
   };
 
   return <Bar data={data} options={options} />;

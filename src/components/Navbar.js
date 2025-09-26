@@ -1,17 +1,26 @@
+// src/components/Navbar.jsx
 import React, { useState, useContext } from 'react';
 import { Dropdown, Form, InputGroup, Button } from 'react-bootstrap';
-import { ThemeContext } from '../App';
+import { ThemeContext } from "../App";
+import './Navbar.css';
 
 const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
 
   return (
-    <nav className="navbar">
-      <div className="container-fluid">
-        <div className="d-flex align-items-center">
-          <div className="input-group me-3" style={{ width: '300px' }}>
-            <InputGroup.Text>
+    <nav className={`custom-navbar ${isDarkMode ? 'dark' : 'light'}`}>
+      <div className="container-fluid d-flex justify-content-between align-items-center">
+        
+        {/* Left Section - Logo */}
+        <div className="navbar-logo">
+          <h4 className="mb-0">Travel Dashboard</h4>
+        </div>
+
+        {/* Center Section - Search */}
+        <div className="navbar-search">
+          <InputGroup>
+            <InputGroup.Text className="search-icon">
               <i className="fas fa-search"></i>
             </InputGroup.Text>
             <Form.Control
@@ -20,10 +29,13 @@ const Navbar = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-          </div>
-          
+          </InputGroup>
+        </div>
+
+        {/* Right Section - Actions */}
+        <div className="navbar-actions d-flex align-items-center">
           <Dropdown className="me-3">
-            <Dropdown.Toggle variant="primary">
+            <Dropdown.Toggle variant={isDarkMode ? 'secondary' : 'primary'}>
               <i className="fas fa-download me-2"></i> Export
             </Dropdown.Toggle>
             <Dropdown.Menu>
@@ -33,8 +45,8 @@ const Navbar = () => {
             </Dropdown.Menu>
           </Dropdown>
 
-          <Button 
-            variant="outline-secondary" 
+          <Button
+            variant={isDarkMode ? 'outline-light' : 'outline-dark'}
             onClick={toggleTheme}
             title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
           >

@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { ThemeContext } from '../App';
+import { apiservice } from '../services/api';
 
 const Settings = () => {
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
